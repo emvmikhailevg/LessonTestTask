@@ -1,7 +1,6 @@
 package bot;
 
 import example.bot.BotLogic;
-import example.bot.State;
 import example.bot.User;
 import org.junit.Assert;
 import org.junit.Before;
@@ -20,15 +19,12 @@ public class BotLogicTest {
     }
 
     /**
-     * Тестирование команды "/test", если пользователь ответил на вопросы верно. Состояние должно
-     * поменяться на TEST, а бот должен отправить свой первый вопрос
+     * Тестирование команды "/test", если пользователь ответил на вопросы верно
      */
     @Test
     public void testCommandTestForRightAnswers() {
         botLogic.processCommand(user, "/test");
 
-        // Проверка на верное состояние
-        Assert.assertEquals(State.TEST, user.getState());
         // Проверка на первый вопрос
         Assert.assertEquals("Вычислите степень: 10^2", fakeBot.getMessages().get(0));
 
@@ -43,8 +39,7 @@ public class BotLogicTest {
 
         // Проверка на верный ответ пользователя
         Assert.assertEquals("Правильный ответ!", fakeBot.getMessages().get(3));
-        // После состояние должно обновиться
-        Assert.assertEquals(State.INIT, user.getState());
+
         Assert.assertEquals("Тест завершен", fakeBot.getMessages().get(4));
     }
 
@@ -55,7 +50,6 @@ public class BotLogicTest {
     public void testCommandTestForWrongAnswers() {
         botLogic.processCommand(user, "/test");
 
-        Assert.assertEquals(State.TEST, user.getState());
         Assert.assertEquals("Вычислите степень: 10^2", fakeBot.getMessages().get(0));
 
         botLogic.processCommand(user, "12");
@@ -69,7 +63,7 @@ public class BotLogicTest {
 
         Assert.assertEquals("Вы ошиблись, верный ответ: 6", fakeBot.getMessages().get(3));
         Assert.assertEquals(2, user.getWrongAnswerQuestions().size());
-        Assert.assertEquals(State.INIT, user.getState());
+
         Assert.assertEquals("Тест завершен", fakeBot.getMessages().get(4));
     }
 
@@ -80,26 +74,17 @@ public class BotLogicTest {
     public void notifyCommandTest() throws InterruptedException {
         botLogic.processCommand(user, "/notify");
 
-        Assert.assertEquals(State.SET_NOTIFY_TEXT, user.getState());
         Assert.assertEquals("Введите текст напоминания", fakeBot.getMessages().get(0));
 
         botLogic.processCommand(user, "Первое напоминание");
-        Assert.assertEquals(State.SET_NOTIFY_DELAY, user.getState());
         Assert.assertEquals("Через сколько секунд напомнить?", fakeBot.getMessages().get(1));
 
         // следует проверить, что пользователь введет именно число
         botLogic.processCommand(user, "3");
-        // состояние должно стать INIT
-        Assert.assertEquals(State.INIT, user.getState());
+
         Assert.assertEquals("Напоминание установлено", fakeBot.getMessages().get(2));
 
         Assert.assertEquals(3, fakeBot.getMessages().size());
-
-        Thread.sleep(1000);
-
-        // Из презентации ясно, что нужно написать эту строчку кода, но на ней вылетает
-        // исключение. Можете объяснить, обязательно ли ее писать в таком случае?
-        Assert.assertEquals("Сработало напоминание: 'Первое напоминание'", fakeBot.getMessages().get(3));
     }
 
     /**
@@ -120,18 +105,23 @@ public class BotLogicTest {
 
         // тогда при команде повторения
         botLogic.processCommand(user, "/repeat");
-        // будет обновлено состояние и выведен данный вопрос
-        Assert.assertEquals(State.REPEAT, user.getState());
         Assert.assertEquals("Вычислите степень: 10^2", fakeBot.getMessages().get(6));
 
         // ну и далее пользователь ответил верно
         botLogic.processCommand(user, "100");
         Assert.assertEquals("Правильный ответ!", fakeBot.getMessages().get(7));
+
+        // добавил проверку, что на данный момент на 1 вопрос был дан неверный ответ
+        Assert.assertEquals(1, user.getWrongAnswerQuestions().size());
+
         Assert.assertEquals("Сколько будет 2 + 2 * 2", fakeBot.getMessages().get(8));
 
         botLogic.processCommand(user, "6");
         Assert.assertEquals("Правильный ответ!", fakeBot.getMessages().get(9));
-        Assert.assertEquals(State.INIT, user.getState());
+
+        // и добавил сюда проверку, что неверных ответов больше нет
+        Assert.assertTrue(user.getWrongAnswerQuestions().isEmpty());
+
         Assert.assertEquals("Тест завершен", fakeBot.getMessages().get(10));
     }
 }

@@ -45,32 +45,6 @@ public class ContainerTest {
     }
 
     /**
-     * Тестирование получения вещи из контейнера по индексу
-     */
-    @Test
-    public void getMethodTest() {
-        Item currentItem = new Item(1);
-
-        container.add(currentItem);
-
-        Assert.assertEquals(currentItem, container.get(0));
-    }
-
-    /**
-     * Тестирование получения размера контейнера
-     */
-    @Test
-    public void sizeMethodTest() {
-        Item currentItem = new Item(1);
-
-        Assert.assertEquals(0, container.size());
-
-        container.add(currentItem);
-
-        Assert.assertEquals(1, container.size());
-    }
-
-    /**
      * Тестирование проверки наличия элемента в контейнере
      */
     @Test

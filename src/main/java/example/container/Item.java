@@ -6,7 +6,7 @@ package example.container;
 public class Item {
     private final long id;
 
-    public Item(long id) {
+    Item(long id) {
         this.id = id;
     }
 
